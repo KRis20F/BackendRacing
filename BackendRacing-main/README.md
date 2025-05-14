@@ -1,5 +1,3 @@
-# Direcciones de Solana y su uso (Imagen @SCR-20250511-pazh.png)
-
 ## Español
 
 - **Address:** `GuNPXxRBR...tpEEQhseF`
@@ -707,3 +705,483 @@ const buyCar = async (carData) => {
    - No almacenar claves privadas
    - Validar inputs en el cliente
    - Manejar timeouts y reconexiones
+
+# Racing Game Frontend Documentation
+
+## 1. Authentication System
+
+### Endpoints
+
+#### Register
+```http
+POST /api/auth/register
+Content-Type: application/json
+```
+
+```json
+{
+  "username": "string",
+  "email": "string",
+  "password": "string",
+  "fechaNacimiento": "YYYY-MM-DD"
+}
+```
+
+Response:
+```json
+{
+  "token": "jwt_token"
+}
+```
+
+#### Login
+```http
+POST /api/auth/login
+Content-Type: application/json
+```
+
+```json
+{
+  "email": "string",
+  "password": "string"
+}
+```
+
+Response:
+```json
+{
+  "token": "jwt_token",
+  "user": {
+    "id": "number",
+    "username": "string",
+    "email": "string"
+  }
+}
+```
+
+#### Get User Data
+```http
+GET /api/auth/me
+Authorization: Bearer <token>
+```
+
+Response:
+```json
+{
+  "profile": {
+    "id": "number",
+    "username": "string",
+    "email": "string",
+    "publicKey": "string",
+    "avatar": "string",
+    "level": "number",
+    "badges": ["string"],
+    "fechaNacimiento": "date"
+  },
+  "game": {
+    "experience": "number",
+    "totalRaces": "number",
+    "wins": "number",
+    "losses": "number",
+    "rank": "string",
+    "stats": {
+      "bestLapTime": "number",
+      "carCollection": ["string"],
+      "favoriteTrack": "string",
+      "totalDistance": "number"
+    }
+  },
+  "finances": {
+    "tokenBalance": "decimal",
+    "usdBalance": "decimal",
+    "wallet": {
+      "balance": "decimal",
+      "address": "string"
+    },
+    "transaction_limits": {
+      "daily_limit": 1000,
+      "monthly_limit": 10000,
+      "max_transaction": 500
+    },
+    "billing_preferences": {
+      "auto_pay": false,
+      "invoice_email": "string",
+      "default_currency": "USD"
+    }
+  }
+}
+```
+
+## 2. Betting System
+
+### Create Bet
+```http
+POST /bet/create
+Authorization: Bearer <token>
+Content-Type: application/json
+```
+
+```json
+{
+  "userId": "number",
+  "rivalId": "number",
+  "cantidad": "decimal"
+}
+```
+
+Response:
+```json
+{
+  "status": "ok",
+  "message": "Apuesta creada y saldo bloqueado."
+}
+```
+
+### Register Race Result
+```http
+POST /race/result
+Authorization: Bearer <token>
+Content-Type: application/json
+```
+
+```json
+{
+  "userId": "number",
+  "rivalId": "number",
+  "tiempo": "decimal",
+  "gano": "boolean",
+  "posicion": "number"
+}
+```
+
+Response:
+```json
+{
+  "status": "ok",
+  "message": "Resultado procesado, tokens transferidos al ganador y resultado guardado.",
+  "winnerId": "number"
+}
+```
+
+## 3. Frontend Implementation Guide
+
+### Required Dependencies
+```json
+{
+  "dependencies": {
+    "axios": "^1.x.x",
+    "react-redux": "^8.x.x",
+    "@reduxjs/toolkit": "^1.x.x",
+    "react-router-dom": "^6.x.x",
+    "jwt-decode": "^3.x.x"
+  }
+}
+```
+
+### State Management Structure
+```typescript
+interface RootState {
+  auth: {
+    token: string | null;
+    user: User | null;
+    isAuthenticated: boolean;
+  };
+  wallet: {
+    balance: number;
+    address: string;
+    transactions: Transaction[];
+  };
+  game: {
+    currentBet: Bet | null;
+    raceResults: RaceResult[];
+    stats: GameStats;
+  };
+}
+```
+
+### Protected Routes Setup
+```typescript
+const PrivateRoute = ({ children }: { children: React.ReactNode }) => {
+  const isAuthenticated = useSelector((state: RootState) => state.auth.isAuthenticated);
+  return isAuthenticated ? children : <Navigate to="/login" />;
+};
+```
+
+### API Interceptor
+```typescript
+axios.interceptors.request.use(
+  (config) => {
+    const token = localStorage.getItem('token');
+    if (token) {
+      config.headers.Authorization = `Bearer ${token}`;
+    }
+    return config;
+  },
+  (error) => {
+    return Promise.reject(error);
+  }
+);
+```
+
+### Dashboard Layout
+```typescript
+const Dashboard = () => {
+  return (
+    <div className="dashboard-container">
+      <Sidebar>
+        <UserProfile />
+        <Navigation />
+      </Sidebar>
+      <MainContent>
+        <GameStats />
+        <BettingSection />
+        <RaceHistory />
+      </MainContent>
+      <RightPanel>
+        <WalletInfo />
+        <TransactionHistory />
+      </RightPanel>
+    </div>
+  );
+};
+```
+
+## 4. Important Notes
+
+### Security Considerations
+- Store JWT token in HttpOnly cookies
+- Implement refresh token mechanism
+- Validate all user inputs
+- Use HTTPS in production
+- Implement rate limiting on frontend
+
+### Error Handling
+- Implement global error boundary
+- Use toast notifications for user feedback
+- Handle network errors gracefully
+- Implement retry mechanism for failed requests
+
+### Performance
+- Implement lazy loading for routes
+- Use React.memo for expensive components
+- Implement proper loading states
+- Cache API responses when appropriate
+
+### WebSocket Integration
+```typescript
+const ws = new WebSocket('ws://your-server/ws');
+
+ws.onmessage = (event) => {
+  const data = JSON.parse(event.data);
+  switch (data.type) {
+    case 'BET_ACCEPTED':
+      // Handle bet acceptance
+      break;
+    case 'RACE_RESULT':
+      // Handle race result
+      break;
+    case 'BALANCE_UPDATE':
+      // Handle balance update
+      break;
+  }
+};
+```
+
+## 5. Database Schema Reference
+
+### Users Table
+- id (PK)
+- username
+- email
+- password
+- avatar
+- level
+- badges
+- tokenBalance
+- publicKey
+- experience
+- totalRaces
+- wins
+- losses
+- rank
+- stats
+- fechaNacimiento
+- usdBalance
+- transaction_limits
+- billing_preferences
+
+### Bets Table
+- id (PK)
+- user1_id (FK)
+- user2_id (FK)
+- amount
+- status
+- winner_id
+- created_at
+
+### Race Results Table
+- id (PK)
+- user_id (FK)
+- rival_id (FK)
+- tiempo
+- posicion
+- bet_id (FK)
+- created_at
+
+For any questions or clarifications, please contact the backend team.
+
+# Dashboard API Documentation
+
+## Endpoints del Dashboard
+
+### 1. Estadísticas del Usuario
+```http
+GET /api/dashboard/user/stats
+Authorization: Bearer <token>
+```
+
+**Respuesta (200 OK)**:
+```json
+{
+  "level": 1,
+  "experience": 0,
+  "totalRaces": 0,
+  "wins": 0,
+  "losses": 0,
+  "rank": "Novato",
+  "tokenBalance": "0.00000000",
+  "stats": {
+    "bestLapTime": null,
+    "carCollection": [],
+    "favoriteTrack": null,
+    "totalDistance": 0
+  }
+}
+```
+
+### 2. Historial de Carreras
+```http
+GET /api/dashboard/user/race-history
+Authorization: Bearer <token>
+```
+
+**Respuesta (200 OK)**:
+```json
+[]  // Lista de carreras del usuario
+```
+
+### 3. Ganancias del Usuario
+```http
+GET /api/dashboard/user/earnings
+Authorization: Bearer <token>
+```
+
+**Respuesta (200 OK)**:
+```json
+{
+  "totalEarnings": 0,
+  "recentHistory": []
+}
+```
+
+### 4. Logros del Usuario
+```http
+GET /api/dashboard/user/achievements
+Authorization: Bearer <token>
+```
+
+**Respuesta (200 OK)**:
+```json
+{
+  "badges": [],
+  "stats": {
+    "bestLapTime": null,
+    "carCollection": [],
+    "favoriteTrack": null,
+    "totalDistance": 0
+  }
+}
+```
+
+### 5. Estadísticas Globales
+```http
+GET /api/dashboard/global/stats
+Authorization: Bearer <token>
+```
+
+**Respuesta (200 OK)**:
+```json
+{
+  "totalUsers": 6,
+  "totalRaces": 0,
+  "totalBets": 0,
+  "topWinners": [
+    {
+      "username": "usuario1",
+      "wins": 0
+    },
+    // ... más usuarios
+  ]
+}
+```
+
+### 6. Resumen del Mercado
+```http
+GET /api/dashboard/market/overview
+Authorization: Bearer <token>
+```
+
+**Respuesta (200 OK)**:
+```json
+{
+  "totalCars": 6,
+  "popularCars": [],
+  "recentTransactions": [
+    {
+      "id": 1,
+      "user_id": 1,
+      "amount": "1.50000000",
+      "type": "deposit",
+      "status": "completed",
+      "description": "Test transaction",
+      "created_at": "2025-05-13T22:08:06.132Z"
+    }
+  ]
+}
+```
+
+## Tablas de Base de Datos Relacionadas
+
+### race_results
+- id (SERIAL PRIMARY KEY)
+- user_id (INTEGER, FK -> Users.id)
+- rival_id (INTEGER, FK -> Users.id)
+- tiempo (DECIMAL(10,3))
+- posicion (INTEGER)
+- bet_id (INTEGER, FK -> bets.id)
+- created_at (TIMESTAMP)
+
+### bets
+- id (SERIAL PRIMARY KEY)
+- user1_id (INTEGER, FK -> Users.id)
+- user2_id (INTEGER, FK -> Users.id)
+- amount (DECIMAL(20,8))
+- status (VARCHAR(20))
+- winner_id (INTEGER, FK -> Users.id)
+- created_at (TIMESTAMP)
+
+## Notas de Implementación
+
+1. Todos los endpoints requieren autenticación mediante JWT
+2. Los datos se actualizan en tiempo real
+3. Las estadísticas se calculan y almacenan en caché para mejor rendimiento
+4. Se implementan índices en las tablas para consultas rápidas
+5. Manejo de errores consistente en todos los endpoints
+
+## Recomendaciones para el Frontend
+
+1. Implementar polling o WebSocket para datos en tiempo real
+2. Cachear respuestas para reducir llamadas al servidor
+3. Implementar estados de carga para mejor UX
+4. Manejar errores y mostrar feedback al usuario
+5. Utilizar gráficos para visualizar estadísticas

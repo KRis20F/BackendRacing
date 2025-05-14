@@ -25,7 +25,10 @@ app.use(cors());
 app.use(express.json());
 
 // Servir archivos estáticos
+// Servir archivos estáticos
 app.use('/images', express.static(path.join(__dirname, 'public/images')));
+app.use('/models3d', express.static(path.join(__dirname, '../public/models3d'))); 
+
 
 // Rutas
 app.use('/api/auth', authRoutes);
