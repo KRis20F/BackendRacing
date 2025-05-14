@@ -1,20 +1,20 @@
 const express = require('express');
 const router = express.Router();
-const walletController = require('../../controllers/walletController');
+const walletController = require('../controllers/walletController');
+const { validateTokenTransaction, validatePublicKey } = require('../middleware/tokenValidation');
+const { SolanaErrorHandler } = require('../utils/solanaErrors');
 const auth = require('../middleware/auth');
 
-// Crear wallet
-router.post('/wallet/create', walletController.createWallet);
+// Rutas básicas de wallet
+router.post('/create', auth, walletController.createWallet);
+router.get('/token/balance/:publicKey', auth, validatePublicKey, walletController.getTokenBalance);
+router.get('/sol/:address', auth, walletController.getSolBalance);
 
-// Listar wallets
-router.get('/wallet/list', walletController.listWallets);
+// Rutas de tokens
+router.post('/token/account', auth, validatePublicKey, walletController.createTokenAccount);
+router.post('/token/transfer', auth, validateTokenTransaction, walletController.transferTokens);
 
-// Consultar balance de un token SPL en una wallet
-router.get('/wallet/:address/token/:mint', walletController.getTokenBalance);
-
-// Consultar balance de SOL en una wallet
-router.get('/wallet/:address/sol', walletController.getSolBalance);
-
-// (Puedes agregar aquí endpoints para consultar balance, listar wallets, etc.)
+// Middleware de manejo de errores de Solana
+router.use(SolanaErrorHandler.middleware);
 
 module.exports = router;

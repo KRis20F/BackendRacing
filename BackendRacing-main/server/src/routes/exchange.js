@@ -1,6 +1,6 @@
 const express = require('express');
 const router = express.Router();
-const exchangeController = require('../../controllers/exchangeController');
+const exchangeController = require('../controllers/exchangeController');
 const auth = require('../middleware/auth');
 
 // Transferencia de tokens

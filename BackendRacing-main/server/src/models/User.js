@@ -25,6 +25,11 @@ const User = sequelize.define('User', {
     type: DataTypes.STRING,
     allowNull: false,
   },
+  publicKey: {
+    type: DataTypes.STRING,
+    allowNull: true,
+    unique: true
+  },
   fechaNacimiento: {
     type: DataTypes.DATE,
     allowNull: true

@@ -1,20 +1,38 @@
 const { DataTypes } = require('sequelize');
 const sequelize = require('../config/database');
-const User = require('./User');
 
 const BillingTransaction = sequelize.define('BillingTransaction', {
-  id: { type: DataTypes.INTEGER, primaryKey: true, autoIncrement: true },
-  user_id: { type: DataTypes.INTEGER, allowNull: false, references: { model: User, key: 'id' } },
-  amount: { type: DataTypes.DECIMAL(20, 2), allowNull: false },
-  type: { type: DataTypes.STRING, allowNull: false },
-  currency: { type: DataTypes.STRING, allowNull: false },
-  description: { type: DataTypes.STRING },
-  created_at: { type: DataTypes.DATE, defaultValue: DataTypes.NOW }
+  id: {
+    type: DataTypes.INTEGER,
+    primaryKey: true,
+    autoIncrement: true
+  },
+  user_id: {
+    type: DataTypes.INTEGER,
+    allowNull: false
+  },
+  amount: {
+    type: DataTypes.DECIMAL(20, 8),
+    allowNull: false
+  },
+  type: {
+    type: DataTypes.STRING(50),
+    allowNull: false
+  },
+  status: {
+    type: DataTypes.STRING(20),
+    allowNull: false
+  },
+  description: {
+    type: DataTypes.TEXT,
+    allowNull: true
+  }
 }, {
   tableName: 'billing_transactions',
-  timestamps: false
+  underscored: true,
+  timestamps: true,
+  createdAt: 'created_at',
+  updatedAt: false
 });
 
-BillingTransaction.belongsTo(User, { foreignKey: 'user_id' });
-
-module.exports = BillingTransaction; 
+module.exports = BillingTransaction;

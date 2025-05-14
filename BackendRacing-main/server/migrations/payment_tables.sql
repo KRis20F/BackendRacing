@@ -12,17 +12,22 @@ CREATE TABLE IF NOT EXISTS transactions (
     FOREIGN KEY (to_addr) REFERENCES users(publickey)
 );
 
+-- Eliminar la tabla wallets si existe
+DROP TABLE IF EXISTS wallets;
+
 -- Tabla para wallets
-CREATE TABLE IF NOT EXISTS wallets (
-    id SERIAL PRIMARY KEY,
-    username_hash TEXT NOT NULL,
-    email_hash TEXT NOT NULL,
-    public_key TEXT NOT NULL UNIQUE,
-    private_key TEXT NOT NULL,
-    created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+CREATE TABLE IF NOT EXISTS "Wallets" (
+    "id" SERIAL PRIMARY KEY,
+    "userId" INTEGER NOT NULL,
+    "address" VARCHAR(255) NOT NULL UNIQUE,
+    "balance" DECIMAL(20,8) NOT NULL DEFAULT 0,
+    "createdAt" TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+    "updatedAt" TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY ("userId") REFERENCES "Users"("id") ON DELETE CASCADE
 );
 
 -- Índices para mejorar el rendimiento de las consultas
 CREATE INDEX IF NOT EXISTS idx_transactions_from_addr ON transactions(from_addr);
 CREATE INDEX IF NOT EXISTS idx_transactions_to_addr ON transactions(to_addr);
-CREATE INDEX IF NOT EXISTS idx_wallets_public_key ON wallets(public_key); 
+CREATE INDEX IF NOT EXISTS idx_wallets_userid ON "Wallets"("userId");
+CREATE INDEX IF NOT EXISTS idx_wallets_address ON "Wallets"("address"); 

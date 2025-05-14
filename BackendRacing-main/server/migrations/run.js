@@ -15,6 +15,11 @@ const pool = new Pool({
 
 async function runMigrations() {
   try {
+    // Leer y ejecutar alter_wallets.sql
+    const alterWalletsSql = readFileSync(join(__dirname, 'alter_wallets.sql'), 'utf8');
+    await pool.query(alterWalletsSql);
+    console.log('✅ Migración de alter_wallets completada');
+
     // Leer y ejecutar exchange_tables.sql
     const exchangeSql = readFileSync(join(__dirname, 'exchange_tables.sql'), 'utf8');
     await pool.query(exchangeSql);

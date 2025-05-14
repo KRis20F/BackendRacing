@@ -1,6 +1,6 @@
-const sequelize = require('../src/config/database');
+const sequelize = require('../config/database');
 const crypto = require('crypto');
-const User = require('../src/models/User');
+const User = require('../models/User');
 
 // Transferencia de tokens
 const exchangeToken = async (req, res) => {

@@ -1,14 +1,26 @@
-const sequelize = require('../src/config/database');
+const sequelize = require('../config/database');
 
 // Listar autos en venta
 const getListings = async (req, res) => {
-  const [rows] = await sequelize.query(`
-    SELECT l.*, c.*
-    FROM car_market_transactions l
-    JOIN "Cars" c ON l.car_id = c.id
-    WHERE l.status = 'pending' OR l.status = 'en_venta'
-  `);
-  res.json(rows);
+  try {
+    // Primero obtenemos todos los autos disponibles
+    const [cars] = await sequelize.query(`
+      SELECT 
+        c.*,
+        COALESCE(mt.price, c.price) as current_price,
+        COALESCE(mt.status, 'available') as market_status,
+        COALESCE(mt.seller_id, NULL) as seller_id
+      FROM "Cars" c
+      LEFT JOIN car_market_transactions mt ON c.id = mt.car_id 
+        AND (mt.status = 'pending' OR mt.status = 'en_venta')
+      ORDER BY c.price ASC
+    `);
+    
+    res.json(cars);
+  } catch (error) {
+    console.error('Error al obtener listings:', error);
+    res.status(500).json({ error: 'Error al obtener los autos disponibles' });
+  }
 };
 
 // Comprar un auto

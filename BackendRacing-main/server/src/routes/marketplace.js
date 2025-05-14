@@ -1,6 +1,6 @@
 const express = require('express');
 const router = express.Router();
-const marketplaceController = require('../../controllers/marketplaceController');
+const marketplaceController = require('../controllers/marketplaceController');
 const auth = require('../middleware/auth');
 
 // Listar autos en venta

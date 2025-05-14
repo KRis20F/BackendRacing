@@ -1,58 +1,3 @@
-# React + TypeScript + Vite
-
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
-
-Currently, two official plugins are available:
-
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react/README.md) uses [Babel](https://babeljs.io/) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
-
-## Expanding the ESLint configuration
-
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
-
-```js
-export default tseslint.config({
-  extends: [
-    // Remove ...tseslint.configs.recommended and replace with this
-    ...tseslint.configs.recommendedTypeChecked,
-    // Alternatively, use this for stricter rules
-    ...tseslint.configs.strictTypeChecked,
-    // Optionally, add this for stylistic rules
-    ...tseslint.configs.stylisticTypeChecked,
-  ],
-  languageOptions: {
-    // other options...
-    parserOptions: {
-      project: ['./tsconfig.node.json', './tsconfig.app.json'],
-      tsconfigRootDir: import.meta.dirname,
-    },
-  },
-})
-```
-
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
-
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
-
-export default tseslint.config({
-  plugins: {
-    // Add the react-x and react-dom plugins
-    'react-x': reactX,
-    'react-dom': reactDom,
-  },
-  rules: {
-    // other rules...
-    // Enable its recommended typescript rules
-    ...reactX.configs['recommended-typescript'].rules,
-    ...reactDom.configs.recommended.rules,
-  },
-})
-```
-
 # Direcciones de Solana y su uso (Imagen @SCR-20250511-pazh.png)
 
 ## Español
@@ -121,3 +66,644 @@ export default tseslint.config({
   - És l'adreça del mint d'un token SPL a Solana.
   - És correcte guardar l'adreça pública del mint en un fitxer `.env` perquè els scripts o backend sàpiguen a quin token SPL referir-se per mintejar, transferir o consultar balanços.
   - **Important:** No posis la clau privada (secret key) del mint al `.env` si el fitxer es comparteix o es puja a un repositori públic. Només l'adreça pública és segura d'exposar.
+
+# Racing Game Backend
+
+## Headers Requeridos
+
+Para todas las peticiones HTTP, usar los siguientes headers:
+
+```http
+Accept: */*
+Content-Type: application/json
+User-Agent: Thunder Client (https://www.thunderclient.com)
+```
+
+Para endpoints autenticados, añadir:
+```http
+x-auth-token: eyJhbGciOiJIUzI1NiIs... // Tu JWT token
+```
+
+## Sistema Implementado
+
+### Autos/NFTs Disponibles
+- ✅ Base de datos implementada con tabla `Cars` y `UserCars`
+- ✅ 6 autos añadidos con detalles completos:
+  - Dodge Charger (Muscle) - 85,000 RCF
+  - Formula 1 (Formula) - 2,000,000 RCF
+  - Porsche 911 GT3 (Sports) - 150,000 RCF
+  - BMW M3 (Racing) - 120,000 RCF
+  - Lamborghini Huracán (Super) - 180,000 RCF
+  - Mosler GT (Racing) - 200,000 RCF
+
+### Estructura de Assets
+- ✅ Assets estáticos en frontend:
+  - `/static/models3d/` - Modelos 3D de autos
+  - `/static/images/cars/` - Imágenes y previsualizaciones
+- ✅ Rutas optimizadas con prefijo '/static/'
+
+## Documentación de API
+
+### 1. Marketplace
+
+#### 1.1 Listar Autos (Marketplace)
+```http
+GET /api/marketplace/listings
+```
+**Autenticación**: No requerida
+
+**Respuesta (200 OK)**:
+```json
+[
+  {
+    "id": 1,
+    "name": "Dodge Charger",
+    "description": "Muscle car clásico americano",
+    "preview_image": "/static/images/cars/dodge-charger.jpg",
+    "thumbnail_image": "/static/images/cars/dodge-charger-thumb.jpg",
+    "price": 85000,
+    "model_path": "/static/models3d/dodge-charger.glb",
+    "category": "Muscle",
+    "specs": {
+      "power": 717,
+      "acceleration": 3.6,
+      "top_speed": 326,
+      "weight": 2000
+    },
+    "current_price": 85000,
+    "market_status": "available",
+    "seller_id": null
+  }
+]
+```
+
+#### 1.2 Vender Auto
+```http
+POST /api/marketplace/sell
+```
+**Autenticación**: JWT requerido
+
+**Body**:
+```json
+{
+    "carId": 1,
+    "sellerId": 1,
+    "price": 100000,
+    "currency": "RCF"
+}
+```
+
+**Respuesta (200 OK)**:
+```json
+{
+    "status": "ok",
+    "message": "Auto listado para venta"
+}
+```
+
+#### 1.3 Comprar Auto
+```http
+POST /api/marketplace/buy
+```
+**Autenticación**: JWT requerido
+
+**Body**:
+```json
+{
+    "listingId": 1,
+    "buyerId": 2
+}
+```
+
+**Respuesta (200 OK)**:
+```json
+{
+    "status": "ok",
+    "message": "Compra realizada con éxito",
+    "carId": 1,
+    "buyerId": 2,
+    "sellerId": 1,
+    "price": 100000,
+    "signature": "abc123..."
+}
+```
+
+### 2. Autos
+
+#### 2.1 Listar Todos los Autos
+```http
+GET /api/cars
+```
+**Autenticación**: No requerida
+
+**Respuesta (200 OK)**:
+```json
+[
+  {
+    "id": 1,
+    "name": "Dodge Charger",
+    "description": "Muscle car clásico americano",
+    "preview_image": "/static/images/cars/dodge-charger.jpg",
+    "thumbnail_image": "/static/images/cars/dodge-charger-thumb.jpg",
+    "price": 85000,
+    "model_path": "/static/models3d/dodge-charger.glb",
+    "category": "Muscle",
+    "specs": {
+      "power": 717,
+      "acceleration": 3.6,
+      "top_speed": 326,
+      "weight": 2000
+    }
+  }
+]
+```
+
+#### 2.2 Filtrar por Categoría
+```http
+GET /api/cars/category/:category
+```
+**Autenticación**: No requerida
+**Categorías**: Muscle, Formula, Sports, Racing, Super
+
+#### 2.3 Autos de Usuario
+```http
+GET /api/cars/user/:userId
+```
+**Autenticación**: JWT requerido
+
+### 3. Pagos y Transacciones
+
+#### 3.1 Enviar Pago
+```http
+POST /api/payment/send
+```
+**Autenticación**: JWT requerido
+
+**Body**:
+```json
+{
+    "fromUserId": 1,
+    "toUserId": 2,
+    "amount": 1000
+}
+```
+
+#### 3.2 Historial de Transacciones
+```http
+GET /api/transactions/history/:userId
+```
+**Autenticación**: JWT requerido
+
+## Estructura de Base de Datos
+
+### Tablas Principales
+1. **Cars**
+   - id, name, description, preview_image, thumbnail_image
+   - price, model_path, category, specs (JSONB)
+
+2. **UserCars**
+   - id, userId, carId, quantity
+
+3. **car_market_transactions**
+   - id, car_id, seller_id, price, currency
+   - status (pending/en_venta/vendido)
+   - created_at, updated_at
+
+4. **token_exchanges**
+   - from_addr, to_addr, token, amount
+   - signature, from_username, to_username
+
+## Estados de Marketplace
+- `available`: Auto disponible para compra directa
+- `pending`: Auto en proceso de venta
+- `en_venta`: Auto listado en marketplace
+- `vendido`: Auto ya vendido
+
+## Seguridad
+- ✅ Autenticación JWT implementada
+- ✅ Rutas protegidas para operaciones sensibles
+- ✅ Validación de saldo para transacciones
+- ✅ Verificación de propiedad de autos
+
+## Próximos Pasos
+1. Sistema de carreras
+2. Más autos y categorías
+3. Sistema de recompensas
+4. Estadísticas de carreras
+5. Sistema de rankings
+
+## Tecnologías
+- Node.js + Express
+- PostgreSQL
+- Solana Web3.js
+- JWT
+- Sequelize ORM
+
+## Autenticación
+
+### 1. Registro de Usuario
+```http
+POST /api/auth/register
+```
+
+**Headers**:
+```http
+Content-Type: application/json
+```
+
+**Body**:
+```json
+{
+    "username": "usuario",
+    "email": "usuario@example.com",
+    "password": "contraseña",
+    "fechaNacimiento": "1990-01-01"
+}
+```
+
+**Respuesta (200 OK)**:
+```json
+{
+    "token": "eyJhbGciOiJIUzI1NiIs..."
+}
+```
+
+### 2. Login
+```http
+POST /api/auth/login
+```
+
+**Headers**:
+```http
+Content-Type: application/json
+```
+
+**Body**:
+```json
+{
+    "email": "usuario@example.com",
+    "password": "contraseña"
+}
+```
+
+**Respuesta (200 OK)**:
+```json
+{
+    "token": "eyJhbGciOiJIUzI1NiIs...",
+    "user": {
+        "id": 1,
+        "username": "usuario",
+        "email": "usuario@example.com",
+        "fechaNacimiento": "1990-01-01"
+    }
+}
+```
+
+## Manejo de Errores
+
+### Errores Comunes
+
+1. **401 Unauthorized**
+```json
+{
+    "msg": "No token, authorization denied"
+}
+```
+o
+```json
+{
+    "msg": "Token is not valid"
+}
+```
+
+2. **400 Bad Request**
+```json
+{
+    "error": "Saldo insuficiente para comprar el auto"
+}
+```
+o
+```json
+{
+    "errors": [
+        {
+            "msg": "Email is required",
+            "param": "email",
+            "location": "body"
+        }
+    ]
+}
+```
+
+3. **404 Not Found**
+```json
+{
+    "error": "Auto no encontrado"
+}
+```
+
+4. **500 Server Error**
+```json
+{
+    "error": "Error al realizar la compra",
+    "details": "..."
+}
+```
+
+## Flujos de Trabajo Implementados
+
+### 1. Compra/Venta de Autos
+1. Usuario lista un auto para venta (`POST /api/marketplace/sell`)
+2. Auto aparece en marketplace (`GET /api/marketplace/listings`)
+3. Comprador verifica saldo
+4. Comprador realiza compra (`POST /api/marketplace/buy`)
+5. Sistema:
+   - Verifica saldo del comprador
+   - Transfiere tokens
+   - Actualiza propietario del auto
+   - Registra transacción
+   - Actualiza estado en marketplace
+
+### 2. Sistema de Pagos
+1. Usuario inicia transferencia (`POST /api/payment/send`)
+2. Sistema:
+   - Verifica saldos
+   - Procesa transacción en Solana
+   - Registra en base de datos
+   - Actualiza balances
+
+### 3. Gestión de NFTs (Autos)
+- Cada auto es un NFT único
+- Propiedades inmutables (specs, modelo, etc.)
+- Propiedad verificable en blockchain
+- Transferible entre usuarios
+
+## Variables de Entorno (.env)
+```env
+JWT_SECRET=tu_secreto_jwt
+SOLANA_RPC_URL=https://api.testnet.solana.com
+MINT_ADDRESS=tu_mint_address
+DATABASE_URL=postgres://usuario:contraseña@localhost:5432/racingdb
+```
+
+# Racing F1 Backend API Documentation
+
+## Configuración Base
+
+```javascript
+const API_BASE_URL = 'https://racing-f1-backend.fly.dev';
+
+const apiCall = async (endpoint, options = {}) => {
+  const token = localStorage.getItem('token');
+  
+  const defaultHeaders = {
+    'Content-Type': 'application/json',
+    ...(token && { 'x-auth-token': token })
+  };
+
+  const response = await fetch(`${API_BASE_URL}${endpoint}`, {
+    ...options,
+    headers: {
+      ...defaultHeaders,
+      ...options.headers
+    }
+  });
+
+  if (!response.ok) {
+    throw new Error(`Error HTTP: ${response.status}`);
+  }
+
+  return await response.json();
+};
+```
+
+## Endpoints Disponibles
+
+### 1. Autenticación y Usuarios
+```javascript
+// Login
+POST /api/auth/login
+{
+  "email": "usuario@ejemplo.com",
+  "password": "contraseña"
+}
+
+// Registro
+POST /api/auth/register
+{
+  "username": "usuario",
+  "email": "usuario@ejemplo.com",
+  "password": "contraseña"
+}
+```
+
+### 2. Wallet y Tokens
+```javascript
+// Crear wallet
+POST /api/wallet/create
+// No requiere body, usa el token JWT para identificar al usuario
+
+// Obtener balance de tokens
+GET /api/wallet/token/balance/:publicKey
+
+// Crear cuenta de token
+POST /api/wallet/token/account
+{
+  "publicKey": "dirección_wallet"
+}
+
+// Transferir tokens
+POST /api/wallet/token/transfer
+{
+  "fromPublicKey": "wallet_origen",
+  "toPublicKey": "wallet_destino",
+  "amount": "cantidad"
+}
+
+// Obtener balance de SOL
+GET /api/wallet/sol/:address
+```
+
+### 3. Carreras y Apuestas
+```javascript
+// Crear apuesta
+POST /api/race/bet/create
+{
+  "userId": "id_usuario",
+  "rivalId": "id_rival",
+  "amount": "cantidad_apuesta"
+}
+
+// Registrar resultado de carrera
+POST /api/race/race/result
+{
+  "userId": "id_usuario",
+  "rivalId": "id_rival",
+  "tiempo": "tiempo_carrera",
+  "gano": true/false,
+  "posicion": "posición_final"
+}
+```
+
+### 4. Marketplace
+```javascript
+// Obtener listado de autos en venta
+GET /api/marketplace/listings
+
+// Comprar auto
+POST /api/marketplace/buy
+{
+  "listingId": "id_listado",
+  "buyerId": "id_comprador"
+}
+
+// Vender auto
+POST /api/marketplace/sell
+{
+  "carId": "id_auto",
+  "sellerId": "id_vendedor",
+  "price": "precio",
+  "currency": "RCF"
+}
+```
+
+### 5. Intercambios
+```javascript
+// Transferir tokens
+POST /api/exchange/token
+{
+  "fromUserId": "id_origen",
+  "toUserId": "id_destino",
+  "token": "dirección_token",
+  "amount": "cantidad"
+}
+
+// Transferir NFT
+POST /api/exchange/nft
+{
+  "fromUserId": "id_origen",
+  "toUserId": "id_destino",
+  "nft": "id_nft"
+}
+```
+
+### 6. Autos (Cars)
+```javascript
+// Obtener todos los autos
+GET /api/cars
+
+// Obtener autos de un usuario
+GET /api/cars/user/:userId
+
+// Obtener auto específico
+GET /api/cars/:id
+```
+
+### 7. Dashboard y Estadísticas
+```javascript
+// Obtener leaderboard
+GET /api/dashboard/leaderboard
+
+// Obtener historial de precios del token
+GET /api/dashboard/token/price-history
+```
+
+### 8. Facturación
+```javascript
+// Obtener transacciones
+GET /api/billing/transactions
+
+// Obtener historial de balance
+GET /api/billing/balance-history
+```
+
+## Ejemplos de Uso
+
+### Crear una Wallet y Obtener Balance
+```javascript
+// Crear wallet
+const createWallet = async () => {
+  try {
+    const response = await apiCall('/api/wallet/create', {
+      method: 'POST'
+    });
+    console.log('Wallet creada:', response);
+    return response;
+  } catch (error) {
+    console.error('Error creando wallet:', error);
+  }
+};
+
+// Obtener balance
+const getBalance = async (publicKey) => {
+  try {
+    const response = await apiCall(`/api/wallet/token/balance/${publicKey}`);
+    console.log('Balance:', response);
+    return response;
+  } catch (error) {
+    console.error('Error obteniendo balance:', error);
+  }
+};
+```
+
+### Realizar una Apuesta
+```javascript
+const placeBet = async (betData) => {
+  try {
+    const response = await apiCall('/api/race/bet/create', {
+      method: 'POST',
+      body: JSON.stringify({
+        userId: betData.userId,
+        rivalId: betData.rivalId,
+        amount: betData.amount
+      })
+    });
+    console.log('Apuesta creada:', response);
+    return response;
+  } catch (error) {
+    console.error('Error creando apuesta:', error);
+  }
+};
+```
+
+### Comprar un Auto
+```javascript
+const buyCar = async (carData) => {
+  try {
+    const response = await apiCall('/api/marketplace/buy', {
+      method: 'POST',
+      body: JSON.stringify({
+        listingId: carData.listingId,
+        buyerId: carData.buyerId
+      })
+    });
+    console.log('Compra realizada:', response);
+    return response;
+  } catch (error) {
+    console.error('Error comprando auto:', error);
+  }
+};
+```
+
+## Notas Importantes
+
+1. **Autenticación**
+   - Todos los endpoints (excepto login/registro) requieren token JWT en el header
+   - El token se obtiene al hacer login/registro
+   - Formato: `x-auth-token: tu_token_jwt`
+
+2. **Manejo de Errores**
+   - Los errores devuelven códigos HTTP estándar
+   - Incluyen mensaje descriptivo en el campo `error`
+   - Implementar manejo de errores en el cliente
+
+3. **Limitaciones**
+   - Máximo 10 transacciones por minuto por usuario
+   - Tamaño máximo de payload: 1MB
+   - Tiempo máximo de respuesta: 30 segundos
+
+4. **Seguridad**
+   - Usar HTTPS en producción
+   - No almacenar claves privadas
+   - Validar inputs en el cliente
+   - Manejar timeouts y reconexiones

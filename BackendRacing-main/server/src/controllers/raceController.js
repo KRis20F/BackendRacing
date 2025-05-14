@@ -1,4 +1,4 @@
-const sequelize = require('../src/config/database');
+const sequelize = require('../config/database');
 
 const raceResult = async (req, res) => {
   const { userId, rivalId, tiempo, gano, posicion } = req.body;

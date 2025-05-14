@@ -1,4 +1,4 @@
-const sequelize = require('../src/config/database');
+const sequelize = require('../config/database');
 
 // Leaderboard (top 5)
 const getLeaderboard = async (req, res) => {

@@ -15,6 +15,7 @@ const Wallet = sequelize.define('Wallet', {
       model: User,
       key: 'id',
     },
+    field: 'userId'
   },
   address: {
     type: DataTypes.STRING,
@@ -28,10 +29,15 @@ const Wallet = sequelize.define('Wallet', {
   },
 }, {
   timestamps: true,
+  underscored: false
 });
 
-// Relación con User
-Wallet.belongsTo(User);
-User.hasOne(Wallet);
+Wallet.belongsTo(User, {
+  foreignKey: 'userId'
+});
 
-module.exports = Wallet; 
+User.hasOne(Wallet, {
+  foreignKey: 'userId'
+});
+
+module.exports = Wallet;

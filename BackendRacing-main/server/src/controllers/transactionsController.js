@@ -1,4 +1,4 @@
-const sequelize = require('../src/config/database');
+const sequelize = require('../config/database');
 
 // Historial de transacciones de un usuario (blockchain y exchanges)
 const getUserHistory = async (req, res) => {
