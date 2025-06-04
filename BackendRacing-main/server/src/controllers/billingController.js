@@ -1,3 +1,68 @@
+/**
+ * @swagger
+ * /api/billing/transactions:
+ *   get:
+ *     summary: Get user's transaction history
+ *     tags: [Billing]
+ *     security:
+ *       - BearerAuth: []
+ *     responses:
+ *       200:
+ *         description: List of user transactions
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: array
+ *               items:
+ *                 type: object
+ *                 properties:
+ *                   id:
+ *                     type: integer
+ *                   user_id:
+ *                     type: integer
+ *                   created_at:
+ *                     type: string
+ *                     format: date-time
+ *       500:
+ *         description: Server error
+ */
+
+/**
+ * @swagger
+ * /api/billing/balance-history:
+ *   get:
+ *     summary: Get user's balance history
+ *     tags: [Billing]
+ *     security:
+ *       - BearerAuth: []
+ *     responses:
+ *       200:
+ *         description: User's balance history
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 currentBalance:
+ *                   type: string
+ *                   description: Current balance in lamports
+ *                 history:
+ *                   type: array
+ *                   items:
+ *                     type: object
+ *                     properties:
+ *                       created_at:
+ *                         type: string
+ *                         format: date-time
+ *                       balance:
+ *                         type: string
+ *                       publicKey:
+ *                         type: string
+ *       400:
+ *         description: User has no wallet
+ *       500:
+ *         description: Server error
+ */
 const { Connection, PublicKey } = require('@solana/web3.js');
 const BillingTransaction = require('../models/BillingTransaction');
 const User = require('../models/User');

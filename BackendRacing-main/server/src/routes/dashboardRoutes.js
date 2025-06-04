@@ -14,6 +14,6 @@ router.get('/user/achievements', auth, dashboardController.getUserAchievements);
 router.get('/global/stats', auth, dashboardController.getGlobalStats);
 router.get('/top/races', auth, dashboardController.getTopRaces);
 router.get('/top/earners', auth, dashboardController.getTopEarners);
-router.get('/market/overview', auth, dashboardController.getMarketOverview);
+router.get('/market-overview', auth, dashboardController.getMarketOverview);
 
 module.exports = router; 

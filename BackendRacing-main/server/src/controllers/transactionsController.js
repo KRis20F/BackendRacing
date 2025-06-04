@@ -1,3 +1,58 @@
+/**
+ * @swagger
+ * /api/transactions/history/{userId}:
+ *   get:
+ *     summary: Get user's transaction history
+ *     tags: [Transactions]
+ *     security:
+ *       - BearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: userId
+ *         required: true
+ *         schema:
+ *           type: integer
+ *         description: ID of the user
+ *     responses:
+ *       200:
+ *         description: User's transaction history
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 history:
+ *                   type: array
+ *                   items:
+ *                     type: object
+ *                     properties:
+ *                       type:
+ *                         type: string
+ *                         enum: [transaction, token_exchange]
+ *                       id:
+ *                         type: integer
+ *                       from_addr:
+ *                         type: string
+ *                       to_addr:
+ *                         type: string
+ *                       amount:
+ *                         type: string
+ *                       signature:
+ *                         type: string
+ *                       created_at:
+ *                         type: string
+ *                         format: date-time
+ *                       from_username:
+ *                         type: string
+ *                       to_username:
+ *                         type: string
+ *       400:
+ *         description: User has no wallet
+ *       404:
+ *         description: User not found
+ *       500:
+ *         description: Server error
+ */
 const sequelize = require('../config/database');
 
 // Historial de transacciones de un usuario (blockchain y exchanges)

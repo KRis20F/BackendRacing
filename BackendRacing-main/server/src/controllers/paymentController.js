@@ -1,3 +1,55 @@
+/**
+ * @swagger
+ * /api/payment/send:
+ *   post:
+ *     summary: Send a Solana payment between users
+ *     tags: [Payment]
+ *     security:
+ *       - BearerAuth: []
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - fromUserId
+ *               - toUserId
+ *               - amount
+ *             properties:
+ *               fromUserId:
+ *                 type: integer
+ *                 description: ID of the sender
+ *               toUserId:
+ *                 type: integer
+ *                 description: ID of the receiver
+ *               amount:
+ *                 type: number
+ *                 description: Amount in SOL to transfer
+ *     responses:
+ *       200:
+ *         description: Payment successful
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 signature:
+ *                   type: string
+ *                   description: Solana transaction signature
+ *                 from:
+ *                   $ref: '#/components/schemas/User'
+ *                 to:
+ *                   $ref: '#/components/schemas/User'
+ *                 amount:
+ *                   type: number
+ *       400:
+ *         description: Invalid parameters or missing wallet
+ *       404:
+ *         description: User not found
+ *       500:
+ *         description: Server error or blockchain transaction failed
+ */
 const { Connection, Keypair, LAMPORTS_PER_SOL, PublicKey, SystemProgram, Transaction } = require('@solana/web3.js');
 const sequelize = require('../config/database');
 const User = require('../models/User');

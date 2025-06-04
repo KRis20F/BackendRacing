@@ -67,19 +67,36 @@
 
 # Racing Game Backend
 
-## Headers Requeridos
+## Autenticación en Headers
 
-Para todas las peticiones HTTP, usar los siguientes headers:
+Para todas las peticiones que requieren autenticación, debes incluir el token JWT en el header de esta manera:
 
 ```http
 Accept: */*
 Content-Type: application/json
-User-Agent: Thunder Client (https://www.thunderclient.com)
+x-auth-token: eyJhbGciOiJIUzI1NiIs...  // Tu token JWT
 ```
 
-Para endpoints autenticados, añadir:
-```http
-x-auth-token: eyJhbGciOiJIUzI1NiIs... // Tu JWT token
+> ⚠️ **Importante**: 
+> - El token se obtiene al hacer login o registro
+> - El header debe ser exactamente `x-auth-token`
+> - El token debe incluir el prefijo `Bearer`
+
+Ejemplo de una petición autenticada usando curl:
+```bash
+curl -X GET http://localhost:8080/api/dashboard/user/stats \
+  -H "Content-Type: application/json" \
+  -H "x-auth-token: eyJhbGciOiJIUzI1NiIs..."
+```
+
+Ejemplo usando Fetch API:
+```javascript
+fetch('http://localhost:8080/api/dashboard/user/stats', {
+  headers: {
+    'Content-Type': 'application/json',
+    'x-auth-token': 'eyJhbGciOiJIUzI1NiIs...'  // Tu token JWT
+  }
+})
 ```
 
 ## Sistema Implementado

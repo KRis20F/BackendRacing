@@ -11,6 +11,42 @@ const connection = new Connection(SOLANA_RPC_URL, 'confirmed');
 // Cantidad de tokens RCF de bienvenida
 const WELCOME_BONUS_AMOUNT = 10; // 10 RCF tokens de bienvenida
 
+/**
+ * @swagger
+ * /api/wallet/create:
+ *   post:
+ *     summary: Create a new Solana wallet for user
+ *     tags: [Wallet]
+ *     security:
+ *       - BearerAuth: []
+ *       - ApiKeyAuth: []
+ *     responses:
+ *       200:
+ *         description: Wallet created successfully with welcome bonus
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 user:
+ *                   $ref: '#/components/schemas/User'
+ *                 welcomeBonus:
+ *                   type: object
+ *                   properties:
+ *                     amount:
+ *                       type: number
+ *                     signature:
+ *                       type: string
+ *                     tokenAccount:
+ *                       type: string
+ *       400:
+ *         description: User already has a wallet
+ *       404:
+ *         description: User not found
+ *       500:
+ *         description: Server error
+ */
+
 const createWallet = async (req, res) => {
   try {
     const userId = req.user.id;
@@ -65,6 +101,41 @@ const createWallet = async (req, res) => {
   }
 };
 
+/**
+ * @swagger
+ * /api/wallet/token/account:
+ *   post:
+ *     summary: Create a token account for user
+ *     tags: [Wallet]
+ *     security:
+ *       - BearerAuth: []
+ *       - ApiKeyAuth: []
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - publicKey
+ *             properties:
+ *               publicKey:
+ *                 type: string
+ *                 description: User's Solana public key
+ *     responses:
+ *       200:
+ *         description: Token account created successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 tokenAccount:
+ *                   type: string
+ *       500:
+ *         description: Server error
+ */
+
 const createTokenAccount = async (req, res, next) => {
   try {
     const result = await SolanaErrorHandler.withErrorHandling(async () => {
@@ -76,6 +147,50 @@ const createTokenAccount = async (req, res, next) => {
     next(error);
   }
 };
+
+/**
+ * @swagger
+ * /api/wallet/token/transfer:
+ *   post:
+ *     summary: Transfer tokens between wallets
+ *     tags: [Wallet]
+ *     security:
+ *       - BearerAuth: []
+ *       - ApiKeyAuth: []
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - fromPublicKey
+ *               - toPublicKey
+ *               - amount
+ *             properties:
+ *               fromPublicKey:
+ *                 type: string
+ *               toPublicKey:
+ *                 type: string
+ *               amount:
+ *                 type: string
+ *     responses:
+ *       200:
+ *         description: Token transfer successful
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 signature:
+ *                   type: string
+ *                 fromBalance:
+ *                   type: string
+ *                 toBalance:
+ *                   type: string
+ *       500:
+ *         description: Server error
+ */
 
 const transferTokens = async (req, res, next) => {
   try {
@@ -105,6 +220,40 @@ const transferTokens = async (req, res, next) => {
   }
 };
 
+/**
+ * @swagger
+ * /api/wallet/token/balance/{publicKey}:
+ *   get:
+ *     summary: Get token balance for a wallet
+ *     tags: [Wallet]
+ *     security:
+ *       - BearerAuth: []
+ *       - ApiKeyAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: publicKey
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: Solana public key
+ *     responses:
+ *       200:
+ *         description: Token balance retrieved successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 publicKey:
+ *                   type: string
+ *                 balance:
+ *                   type: string
+ *                 tokenSymbol:
+ *                   type: string
+ *       500:
+ *         description: Server error
+ */
+
 const getTokenBalance = async (req, res, next) => {
   try {
     const result = await SolanaErrorHandler.withErrorHandling(async () => {
@@ -120,6 +269,40 @@ const getTokenBalance = async (req, res, next) => {
     next(error);
   }
 };
+
+/**
+ * @swagger
+ * /api/wallet/sol/balance/{address}:
+ *   get:
+ *     summary: Get SOL balance for a wallet
+ *     tags: [Wallet]
+ *     security:
+ *       - BearerAuth: []
+ *       - ApiKeyAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: address
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: Solana wallet address
+ *     responses:
+ *       200:
+ *         description: SOL balance retrieved successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 address:
+ *                   type: string
+ *                 sol:
+ *                   type: number
+ *       400:
+ *         description: Invalid address
+ *       500:
+ *         description: Server error
+ */
 
 const getSolBalance = async (req, res) => {
   const { address } = req.params;

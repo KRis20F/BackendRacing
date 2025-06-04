@@ -94,4 +94,174 @@ StartCoroutine(EnviarResultado(userId, rivalId, tiempo, gano, posicion, onSucces
 
 ---
 
-¿Dudas? ¿Quieres ejemplos personalizados? ¡Pídelo! 
+## 7. Sistema de Wallets y Tokens RCF
+
+### a) Creación de Wallet Principal
+- **POST /api/wallet/create**
+- **Función:** 
+  - Crea la wallet principal del usuario en Solana
+  - Otorga 10 tokens RCF de bienvenida
+  - Guarda la publicKey en el perfil del usuario
+- **Respuesta:**
+```json
+{
+  "user": {
+    "id": 1,
+    "username": "player123",
+    "publicKey": "DRtXkjh8HvzFxmXeTgbxwjvKXmNZQhwkqn9bv79VAwaE"
+  },
+  "wallet": {
+    "address": "DRtXkjh8HvzFxmXeTgbxwjvKXmNZQhwkqn9bv79VAwaE",
+    "balance": "10"
+  }
+}
+```
+
+### b) Creación de Cuenta de Token RCF
+- **POST /api/wallet/token/account**
+- **Body:** `{ "publicKey": "tu_public_key" }`
+- **Función:**
+  - Crea una cuenta específica para tokens RCF (Associated Token Account)
+  - Necesaria para manejar los tokens RCF en Solana
+  - Muestra el balance actual de tokens
+- **Respuesta:**
+```json
+{
+  "tokenAccount": "SrXyoRWKxQ8UH4uzbhhM1WNZXmMdFo81jpVgS4TPmhD",
+  "balance": "10"
+}
+```
+
+### c) Flujo del Sistema de Tokens
+1. Al registrarse, el usuario no tiene wallet
+2. Debe crear su wallet principal (POST /api/wallet/create)
+3. Luego crear su cuenta de token RCF (POST /api/wallet/token/account)
+4. Ahora puede:
+   - Participar en apuestas
+   - Recibir premios
+   - Transferir tokens
+   - Ver su balance
+
+### d) Diferencias entre Wallet y Token Account
+- **Wallet Principal:**
+  - Es la cuenta base en Solana
+  - Puede manejar SOL y crear otras cuentas
+  - Se crea una vez por usuario
+  - Recibe los tokens de bienvenida
+
+- **Token Account:**
+  - Es específica para tokens RCF
+  - Necesaria para operaciones con RCF
+  - Vinculada a la wallet principal
+  - Muestra el balance de RCF
+
+---
+
+## 8. Sistema de Market Overview
+
+### a) Endpoint de Resumen del Mercado
+- **GET /api/dashboard/market-overview**
+- **Autenticación:** JWT requerido (x-auth-token)
+- **Función:**
+  - Proporciona una vista general del mercado de autos
+  - Muestra estadísticas de ventas y popularidad
+  - Lista transacciones recientes
+- **Respuesta:**
+```json
+{
+  "totalCars": 0,
+  "popularCars": [
+    {
+      "carId": 1,
+      "ownerCount": 5,
+      "Car": {
+        "name": "Dodge Charger",
+        "price": 85000,
+        "category": "Muscle",
+        "specs": {
+          "power": 717,
+          "acceleration": 3.6,
+          "top_speed": 326,
+          "weight": 2000
+        }
+      }
+    }
+  ],
+  "recentTransactions": [
+    {
+      "id": 1,
+      "type": "sell",
+      "price": 100000,
+      "currency": "RCF",
+      "carName": "Dodge Charger",
+      "category": "Muscle",
+      "seller": "player123",
+      "timestamp": "2024-05-21T15:30:00Z"
+    }
+  ],
+  "marketStats": {
+    "totalVolume": "0",
+    "avgPrice": "0",
+    "activeListings": 0,
+    "last24hTransactions": 0
+  }
+}
+```
+
+### b) Componentes del Market Overview
+
+1. **Total de Autos (`totalCars`)**
+   - Cantidad total de autos disponibles en el sistema
+   - Incluye todos los modelos registrados
+
+2. **Autos Populares (`popularCars`)**
+   - Lista de los 5 autos más poseídos
+   - Muestra cantidad de propietarios por modelo
+   - Incluye detalles completos del auto
+
+3. **Transacciones Recientes (`recentTransactions`)**
+   - Últimas 5 transacciones completadas
+   - Detalles de compra/venta
+   - Información del vendedor y auto
+
+4. **Estadísticas del Mercado (`marketStats`)**
+   - Volumen total de transacciones
+   - Precio promedio de ventas
+   - Cantidad de listados activos
+   - Transacciones en las últimas 24 horas
+
+### c) Uso en el Frontend
+
+```javascript
+// Ejemplo de llamada al endpoint
+const getMarketOverview = async () => {
+  try {
+    const response = await fetch('http://localhost:8080/api/dashboard/market-overview', {
+      headers: {
+        'Content-Type': 'application/json',
+        'x-auth-token': 'tu_token_jwt'
+      }
+    });
+    const data = await response.json();
+    // Procesar datos del mercado
+  } catch (error) {
+    console.error('Error al obtener resumen del mercado:', error);
+  }
+};
+```
+
+### d) Tablas Relacionadas
+
+1. **Cars**
+   - Información base de los modelos de autos
+   - Precios y especificaciones
+
+2. **UserCars**
+   - Registro de propiedad de autos
+   - Relación usuario-auto
+
+3. **CarMarketTransaction**
+   - Historial de transacciones
+   - Estado de ventas y compras
+
+---

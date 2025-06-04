@@ -1,3 +1,156 @@
+/**
+ * @swagger
+ * /api/cars:
+ *   get:
+ *     summary: Get all available cars
+ *     tags: [Cars]
+ *     responses:
+ *       200:
+ *         description: List of all cars
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: array
+ *               items:
+ *                 type: object
+ *                 properties:
+ *                   id:
+ *                     type: integer
+ *                   name:
+ *                     type: string
+ *                   description:
+ *                     type: string
+ *                   preview_image:
+ *                     type: string
+ *                   thumbnail_image:
+ *                     type: string
+ *                   price:
+ *                     type: number
+ *                   model_path:
+ *                     type: string
+ *                   category:
+ *                     type: string
+ *                   specs:
+ *                     type: object
+ *       500:
+ *         description: Server error
+ */
+
+/**
+ * @swagger
+ * /api/cars/category/{category}:
+ *   get:
+ *     summary: Get cars by category
+ *     tags: [Cars]
+ *     parameters:
+ *       - in: path
+ *         name: category
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: Category of cars to retrieve
+ *     responses:
+ *       200:
+ *         description: List of cars in category
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: array
+ *               items:
+ *                 $ref: '#/components/schemas/Car'
+ *       500:
+ *         description: Server error
+ */
+
+/**
+ * @swagger
+ * /api/cars/{id}:
+ *   get:
+ *     summary: Get car by ID
+ *     tags: [Cars]
+ *     security:
+ *       - BearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: integer
+ *         description: Car ID
+ *     responses:
+ *       200:
+ *         description: Car details
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Car'
+ *       404:
+ *         description: Car not found
+ *       500:
+ *         description: Server error
+ */
+
+/**
+ * @swagger
+ * /api/cars/user/{userId}:
+ *   get:
+ *     summary: Get user's cars (garage)
+ *     tags: [Cars]
+ *     security:
+ *       - BearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: userId
+ *         required: true
+ *         schema:
+ *           type: integer
+ *         description: User ID
+ *     responses:
+ *       200:
+ *         description: List of user's cars
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: array
+ *               items:
+ *                 allOf:
+ *                   - $ref: '#/components/schemas/Car'
+ *                   - type: object
+ *                     properties:
+ *                       userCarId:
+ *                         type: integer
+ *       500:
+ *         description: Server error
+ */
+
+/**
+ * @swagger
+ * components:
+ *   schemas:
+ *     Car:
+ *       type: object
+ *       properties:
+ *         id:
+ *           type: integer
+ *         name:
+ *           type: string
+ *         description:
+ *           type: string
+ *         preview_image:
+ *           type: string
+ *         thumbnail_image:
+ *           type: string
+ *         price:
+ *           type: number
+ *         model_path:
+ *           type: string
+ *         category:
+ *           type: string
+ *         specs:
+ *           type: object
+ *         owned:
+ *           type: boolean
+ */
 const sequelize = require('../config/database');
 
 // Obtener todos los autos disponibles

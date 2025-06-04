@@ -3,7 +3,7 @@ const {
   getOrCreateAssociatedTokenAccount,
   transfer,
   getAccount,
-  createAssociatedTokenAccount
+  getMint
 } = require('@solana/spl-token');
 require('dotenv').config();
 
@@ -140,6 +140,19 @@ class TokenService {
       }
     }
     throw new Error(`Failed to get token balance after ${retries} attempts: ${lastError.message}`);
+  }
+
+  async getTokenSupply() {
+    try {
+      const mintInfo = await getMint(
+        this.connection,
+        this.mintAddress
+      );
+      return Number(mintInfo.supply) / Math.pow(10, mintInfo.decimals);
+    } catch (error) {
+      console.error('Error getting token supply:', error);
+      throw new Error('Failed to get token supply: ' + error.message);
+    }
   }
 }
 

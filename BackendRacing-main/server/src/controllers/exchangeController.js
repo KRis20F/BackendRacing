@@ -1,3 +1,135 @@
+/**
+ * @swagger
+ * /api/exchange/token:
+ *   post:
+ *     summary: Transfer tokens between users
+ *     tags: [Exchange]
+ *     security:
+ *       - BearerAuth: []
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - fromUserId
+ *               - toUserId
+ *               - token
+ *               - amount
+ *             properties:
+ *               fromUserId:
+ *                 type: integer
+ *                 description: ID of the sender
+ *               toUserId:
+ *                 type: integer
+ *                 description: ID of the receiver
+ *               token:
+ *                 type: string
+ *                 description: Token symbol or address
+ *               amount:
+ *                 type: string
+ *                 description: Amount to transfer
+ *     responses:
+ *       200:
+ *         description: Token transfer successful
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 status:
+ *                   type: string
+ *                   example: ok
+ *                 from:
+ *                   $ref: '#/components/schemas/User'
+ *                 to:
+ *                   $ref: '#/components/schemas/User'
+ *                 token:
+ *                   type: string
+ *                 amount:
+ *                   type: string
+ *                 signature:
+ *                   type: string
+ *       400:
+ *         description: Invalid parameters or missing wallet
+ *       404:
+ *         description: User not found
+ *       500:
+ *         description: Server error
+ */
+
+/**
+ * @swagger
+ * /api/exchange/nft:
+ *   post:
+ *     summary: Transfer NFT between users
+ *     tags: [Exchange]
+ *     security:
+ *       - BearerAuth: []
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - fromUserId
+ *               - toUserId
+ *               - nft
+ *             properties:
+ *               fromUserId:
+ *                 type: integer
+ *                 description: ID of the sender
+ *               toUserId:
+ *                 type: integer
+ *                 description: ID of the receiver
+ *               nft:
+ *                 type: string
+ *                 description: NFT identifier or mint address
+ *     responses:
+ *       200:
+ *         description: NFT transfer successful
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 status:
+ *                   type: string
+ *                   example: ok
+ *                 from:
+ *                   $ref: '#/components/schemas/User'
+ *                 to:
+ *                   $ref: '#/components/schemas/User'
+ *                 nft:
+ *                   type: string
+ *                 signature:
+ *                   type: string
+ *       400:
+ *         description: Invalid parameters or missing wallet
+ *       404:
+ *         description: User not found
+ *       500:
+ *         description: Server error
+ */
+
+/**
+ * @swagger
+ * components:
+ *   schemas:
+ *     User:
+ *       type: object
+ *       properties:
+ *         id:
+ *           type: integer
+ *         username:
+ *           type: string
+ *         email:
+ *           type: string
+ *         publicKey:
+ *           type: string
+ */
 const sequelize = require('../config/database');
 const crypto = require('crypto');
 const User = require('../models/User');

@@ -1,3 +1,61 @@
+/**
+ * @swagger
+ * components:
+ *   securitySchemes:
+ *     ApiKeyAuth:
+ *       type: apiKey
+ *       in: header
+ *       name: x-auth-token
+ *       description: Token JWT proporcionado durante el login. Debe enviarse en el header como 'x-auth-token'
+ */
+
+/**
+ * @swagger
+ * /api/bet/create:
+ *   post:
+ *     summary: Create a new bet between two users
+ *     tags: [Bets]
+ *     security:
+ *       - ApiKeyAuth: []
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - userId
+ *               - rivalId
+ *               - cantidad
+ *             properties:
+ *               userId:
+ *                 type: integer
+ *                 description: ID del usuario que crea la apuesta
+ *               rivalId:
+ *                 type: integer
+ *                 description: ID del rival
+ *               cantidad:
+ *                 type: number
+ *                 description: Cantidad a apostar
+ *     responses:
+ *       200:
+ *         description: Apuesta creada exitosamente
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 status:
+ *                   type: string
+ *                   example: ok
+ *                 message:
+ *                   type: string
+ *                   example: Apuesta creada y saldo bloqueado.
+ *       400:
+ *         description: Parámetros inválidos o saldo insuficiente
+ *       500:
+ *         description: Error del servidor
+ */
 const sequelize = require('../config/database');
 
 const createBet = async (req, res) => {

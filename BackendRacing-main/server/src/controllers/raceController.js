@@ -1,3 +1,86 @@
+/**
+ * @swagger
+ * /api/race/result:
+ *   post:
+ *     summary: Submit race results and process bet
+ *     tags: [Race]
+ *     security:
+ *       - BearerAuth: []
+ *       - ApiKeyAuth: []
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - userId
+ *               - rivalId
+ *               - tiempo
+ *               - gano
+ *               - posicion
+ *             properties:
+ *               userId:
+ *                 type: integer
+ *                 description: ID of the user submitting result
+ *               rivalId:
+ *                 type: integer
+ *                 description: ID of the rival user
+ *               tiempo:
+ *                 type: number
+ *                 description: Race completion time in seconds
+ *               gano:
+ *                 type: boolean
+ *                 description: Whether the user won the race
+ *               posicion:
+ *                 type: integer
+ *                 description: Final position in race
+ *     responses:
+ *       200:
+ *         description: Race result processed successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 status:
+ *                   type: string
+ *                   example: ok
+ *                 message:
+ *                   type: string
+ *                   example: Resultado procesado, tokens transferidos al ganador y resultado guardado.
+ *                 winnerId:
+ *                   type: integer
+ *                   description: ID of the winning user
+ *       400:
+ *         description: Invalid parameters
+ *       404:
+ *         description: No pending bet found
+ *       500:
+ *         description: Server error
+ * 
+ * components:
+ *   schemas:
+ *     RaceResult:
+ *       type: object
+ *       properties:
+ *         id:
+ *           type: integer
+ *         user_id:
+ *           type: integer
+ *         rival_id:
+ *           type: integer
+ *         tiempo:
+ *           type: number
+ *           format: float
+ *         posicion:
+ *           type: integer
+ *         bet_id:
+ *           type: integer
+ *         created_at:
+ *           type: string
+ *           format: date-time
+ */
 const sequelize = require('../config/database');
 
 const raceResult = async (req, res) => {

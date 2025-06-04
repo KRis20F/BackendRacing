@@ -28,7 +28,8 @@ const User = sequelize.define('User', {
   publicKey: {
     type: DataTypes.STRING,
     allowNull: true,
-    unique: true
+    unique: true,
+    defaultValue: null
   },
   fechaNacimiento: {
     type: DataTypes.DATE,
@@ -75,7 +76,7 @@ const User = sequelize.define('User', {
     defaultValue: {}
   },
   badges: {
-    type: DataTypes.JSON,
+    type: DataTypes.ARRAY(DataTypes.STRING),
     defaultValue: []
   },
   transaction_limits: {
