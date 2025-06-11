@@ -1,0 +1,193 @@
+# Racing F1 Solana Backend
+
+## Resumen
+
+Este backend expone una API RESTful para gestionar wallets, pagos, intercambios de tokens y NFTs en la testnet de Solana, usando una base de datos SQLite para persistencia. Está pensado para integrarse con el frontend React del juego de coches P2P.
+
+---
+
+## 1. Requisitos previos
+
+- Node.js >= 16.x
+- npm
+- (Opcional) Docker
+
+---
+
+## 2. Instalación y configuración
+
+1. Clona el repositorio y entra en la carpeta `server`:
+
+   ```bash
+   cd server
+   npm install
+   ```
+
+2. Crea el archivo `.env` (opcional, para personalizar la red Solana):
+
+   ```env
+   SOLANA_NETWORK=testnet
+   SOLANA_RPC_URL=https://api.testnet.solana.com
+   PORT=4000
+   ADMIN_TOKEN=supersecreto123
+   ```
+
+---
+
+## 3. Ejecución
+
+```bash
+npm start
+```
+
+La API estará disponible en `http://localhost:4000`.
+
+---
+
+## 4. Endpoints principales
+
+### Wallets
+
+- **POST /wallet/register**
+  - Registra una wallet nueva (genera clave y la guarda en SQLite, requiere username, email y fechaNacimiento mayor de 18 años).
+- **GET /wallet/:address**
+  - Consulta información pública de una wallet (hash username, address, balance positivo/negativo).
+- **GET /wallet/admin/list**
+  - Solo admin, muestra todos los usuarios registrados (hashes, nunca datos reales).
+
+### Pagos
+
+- **POST /payment/send**
+  - Simula un pago de SOL entre wallets (en testnet).
+
+### Exchange
+
+- **POST /exchange/token**
+  - Intercambia tokens SPL entre wallets (simulado).
+- **POST /exchange/nft**
+  - Intercambia NFTs entre wallets (simulado).
+- **GET /exchange/token/:wallet**
+  - Consulta exchanges de tokens de una wallet.
+- **GET /exchange/nft/:wallet**
+  - Consulta exchanges de NFTs de una wallet.
+- **GET /exchange/spot/:pair**
+  - Consulta el precio real/simulado de un par (ej: btc-eur, sol-usdc, eth-usdc, xrp-eur, etc).
+
+### Transacciones
+
+- **GET /transactions/:wallet**
+  - Consulta transacciones de una wallet (público: solo hashes y amounts; dueño: todos los detalles).
+
+---
+
+## 5. Pruebas rápidas con curl
+
+- **Registrar wallet:**
+
+  ```bash
+  curl -X POST http://localhost:4000/wallet/register -H "Content-Type: application/json" -d '{"username":"usuario1","email":"mail@x.com","fechaNacimiento":"2000-01-01"}'
+  ```
+
+- **Consultar wallet:**
+
+  ```bash
+  curl http://localhost:4000/wallet/<address>
+  ```
+
+- **Enviar pago:**
+
+  ```bash
+  curl -X POST http://localhost:4000/payment/send -H "Content-Type: application/json" -d '{"from":"<address1>","to":"<address2>","amount":0.01}'
+  ```
+
+- **Consultar precio spot:**
+
+  ```bash
+  curl http://localhost:4000/exchange/spot/sol-usdc
+  ```
+
+---
+
+## 6. Seguridad y privacidad
+
+- Los datos personales se almacenan como hash.
+- El balance solo se muestra como positivo/negativo.
+- El acceso a la lista de usuarios está protegido por token admin.
+- Las transacciones y exchanges solo muestran detalles completos al dueño.
+
+---
+
+## 7. Recursos útiles
+
+- [Solana Docs](https://docs.solana.com/)
+- [@solana/web3.js](https://github.com/solana-labs/solana-web3.js)
+- [Metaplex JS (NFTs)](https://docs.metaplex.com/)
+- [CoinGecko API](https://www.coingecko.com/en/api)
+- [SQLite](https://www.sqlite.org/index.html)
+
+---
+
+## 8. Integración con el frontend
+
+- El frontend debe consumir los endpoints de este backend para registrar wallets, simular pagos, hacer exchanges y mostrar precios.
+- Usa fetch o axios en React para llamar a la API.
+- Ejemplo para TradingChart o MarketStats:
+
+  ```typescript
+  async function fetchSpotPrice(pair: string) {
+    const res = await fetch(`http://localhost:4000/exchange/spot/${pair}`);
+    if (!res.ok) throw new Error('Error fetching spot price');
+    return await res.json();
+  }
+  ```
+
+---
+
+## 9. Paso a paso: Testnet Solana y NFTs de coches
+
+### 9.1. Crear wallets de prueba
+
+- Usa el endpoint `/wallet/register` para crear wallets de usuario (debe ser mayor de 18 años).
+- Cada wallet recibe 1 SOL de testnet automáticamente.
+
+### 9.2. Simular pagos y transferencias
+
+- Usa `/payment/send` para enviar SOL entre wallets de testnet.
+- Puedes consultar el estado de la wallet y sus transacciones con `/wallet/:address` y `/transactions/:wallet`.
+
+### 9.3. Crear e intercambiar NFTs de coches (simulado)
+
+- Para simular un NFT de coche, usa `/exchange/nft`:
+
+  ```bash
+  curl -X POST http://localhost:4000/exchange/nft -H "Content-Type: application/json" -d '{"from":"<address1>","to":"<address2>","nft":"car-2024-lambo"}'
+  ```
+
+- Consulta los intercambios de NFTs de una wallet:
+
+  ```bash
+  curl http://localhost:4000/exchange/nft/<address>
+  ```
+
+- En el frontend, puedes mostrar los NFTs de cada usuario usando este endpoint.
+
+### 9.4. Consultar precios de tokens y pares
+
+- Usa `/exchange/spot/sol-usdc`, `/exchange/spot/btc-eur`, etc. para obtener precios en tiempo real (CoinGecko) o simulados.
+- Estos datos pueden alimentar los gráficos y stats del frontend.
+
+### 9.5. (Opcional) Integración real de NFTs en Solana
+
+- Para crear NFTs reales en testnet, usa la librería [Metaplex JS](https://docs.metaplex.com/) en el backend o frontend.
+- Puedes extender el endpoint `/exchange/nft` para crear y transferir NFTs reales usando Metaplex y Solana testnet.
+- Recuerda que para pruebas, la simulación es suficiente y más rápida.
+
+---
+
+## 10. Docker (opcional)
+
+Puedes crear un `Dockerfile` y un `docker-compose.yml` para levantar el backend fácilmente.
+
+---
+
+¿Dudas? ¡Lee el código fuente y los comentarios, o pregunta a tu mentor!

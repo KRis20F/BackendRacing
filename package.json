@@ -1,0 +1,29 @@
+{
+  "name": "racingfi-backend",
+  "version": "1.0.0",
+  "description": "Backend para RacingFi con integración Solana",
+  "scripts": {
+    "start": "cd server && npm start",
+    "dev": "cd server && npm run dev",
+    "setup": "cd server && npm install && cd ../solana-scripts/token-setup && npm install && cd ../token-metadata && npm install",
+    "deploy": "cd server && npm run deploy"
+  },
+  "keywords": [
+    "solana",
+    "racing",
+    "blockchain",
+    "nft"
+  ],
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "gh-pages": "^6.3.0"
+  },
+  "dependencies": {
+    "@metaplex-foundation/mpl-token-metadata": "^2.11.1",
+    "@metaplex-foundation/umi": "^0.9.2",
+    "@metaplex-foundation/umi-bundle-defaults": "^0.9.2",
+    "@solana/web3.js": "^1.98.2",
+    "express-validator": "^7.2.1"
+  }
+}

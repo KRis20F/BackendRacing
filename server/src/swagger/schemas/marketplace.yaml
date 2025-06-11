@@ -1,0 +1,68 @@
+components:
+  schemas:
+    CarListing:
+      type: object
+      properties:
+        id:
+          type: integer
+          description: Unique identifier for the listing
+        carId:
+          type: integer
+          description: ID of the car being sold
+        name:
+          type: string
+          description: Name of the car
+        current_price:
+          type: number
+          description: Current price of the car
+        market_status:
+          type: string
+          enum: [available, pending, en_venta, vendido]
+          description: Current status of the listing
+        seller_id:
+          type: integer
+          description: ID of the seller
+        specs:
+          type: object
+          properties:
+            power:
+              type: string
+            acceleration:
+              type: string
+            topSpeed:
+              type: string
+            weight:
+              type: string
+
+    CarMarketTransaction:
+      type: object
+      properties:
+        id:
+          type: integer
+          description: Unique identifier for the transaction
+        car_id:
+          type: integer
+          description: ID of the car involved
+        seller_id:
+          type: integer
+          description: ID of the seller
+        price:
+          type: number
+          description: Price of the transaction
+        currency:
+          type: string
+          description: Currency used (e.g. RCF)
+        status:
+          type: string
+          enum: [pending, en_venta, vendido]
+          description: Status of the transaction
+        tx_type:
+          type: string
+          enum: [sell, buy]
+          description: Type of transaction
+        created_at:
+          type: string
+          format: date-time
+        updated_at:
+          type: string
+          format: date-time 
