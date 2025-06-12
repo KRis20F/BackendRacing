@@ -137,6 +137,8 @@ router.get('/category/:category', carController.getCarsByCategory);
 // Esta ruta debe ir al final para no capturar otras rutas
 router.get('/:id', carController.getCarById);
 
+router.get('/category-counts', carController.getCategoryCounts);
+
 /**
  * @swagger
  * /api/cars/user/{userId}:

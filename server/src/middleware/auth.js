@@ -4,7 +4,8 @@ module.exports = (req, res, next) => {
   console.log('🔐 [Auth] Verificando token...');
   console.log('🔑 [Auth] Headers:', req.headers);
   
-  const token = req.header('x-auth-token');
+  // Buscar el token en x-auth-token o Authorization: Bearer ...
+  const token = req.header('x-auth-token') || (req.header('authorization') && req.header('authorization').replace('Bearer ', ''));
   if (!token) {
     console.log('❌ [Auth] No se proporcionó token');
     return res.status(401).json({ error: 'No hay token, autorización denegada' });

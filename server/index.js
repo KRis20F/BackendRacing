@@ -30,11 +30,11 @@ const PORT = process.env.PORT;
 
 // CORS configuration
 app.use(cors({
-  origin: ['http://localhost:8080', 'http://localhost:3000', 'http://localhost:5173', 'http://localhost:15173', 'https://kris20f.github.io', 'https://backendracing-main.fly.dev/api-docs', '*'],
+  origin: '*',
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'x-auth-token', 'Authorization', 'Range', 'Accept'],
   exposedHeaders: ['Content-Range', 'Content-Length', 'Accept-Ranges'],
-  credentials: true
+  credentials: false
 }));
 
 // Middleware

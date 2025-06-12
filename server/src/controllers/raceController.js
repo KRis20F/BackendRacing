@@ -82,6 +82,7 @@
  *           format: date-time
  */
 const sequelize = require('../config/database');
+const jwt = require('jsonwebtoken');
 
 const raceResult = async (req, res) => {
   const { userId, rivalId, tiempo, gano, posicion } = req.body;
@@ -139,8 +140,27 @@ const raceResult = async (req, res) => {
 };
 
 const procesarResultadoSimple = async (req, res) => {
+  // Buscar el token en x-auth-token o Authorization: Bearer ...
+  const token = req.headers['x-auth-token'] || (req.headers['authorization'] && req.headers['authorization'].replace('Bearer ', ''));
+  if (!token) {
+    console.log('❌ [Auth] No se proporcionó token');
+    return res.status(401).json({ error: 'No hay token, autorización denegada' });
+  }
+  let user;
+  try {
+    const decoded = jwt.verify(token, process.env.JWT_SECRET);
+    user = decoded.user;
+    console.log('✅ [Auth] Token válido para usuario:', user.id);
+  } catch (err) {
+    console.error('❌ [Auth] Token inválido:', err.message);
+    return res.status(401).json({ error: 'Token no válido' });
+  }
+
   const { resultado } = req.body;
+  console.log('Body recibido:', req.body);
+
   if (!resultado) {
+    console.log('Falta el campo resultado en el body');
     return res.status(400).json({ error: 'Falta el resultado' });
   }
 
@@ -151,16 +171,22 @@ const procesarResultadoSimple = async (req, res) => {
   } else if (resultado.toLowerCase().includes('player 2')) {
     winnerPlayer = 2;
   } else {
+    console.log('Formato de resultado no reconocido:', resultado);
     return res.status(400).json({ error: 'Formato de resultado no reconocido' });
   }
 
+  // --- Lógica de apuestas comentada para debug ---
+  /*
   try {
     // Buscar la apuesta pendiente más reciente
     const [betRows] = await sequelize.query(
       "SELECT * FROM bets WHERE status = 'pendiente' ORDER BY created_at DESC LIMIT 1"
     );
     const bet = betRows[0];
-    if (!bet) return res.status(404).json({ error: 'No hay apuesta pendiente.' });
+    if (!bet) {
+      console.log('No hay apuesta pendiente.');
+      return res.status(404).json({ error: 'No hay apuesta pendiente.' });
+    }
 
     // Determinar los IDs reales de los jugadores
     const player1Id = bet.user1_id;
@@ -180,14 +206,28 @@ const procesarResultadoSimple = async (req, res) => {
       [winnerId, loserId, 0, 1, bet.id]
     );
 
+    console.log(`Resultado procesado correctamente. Ganador: player ${winnerPlayer} (userId: ${winnerId})`);
+
     res.json({
       status: 'ok',
       message: `Resultado procesado, tokens transferidos al ganador (player ${winnerPlayer}) y apuesta resuelta.`,
       winnerId
     });
   } catch (error) {
+    console.log('Error al procesar el resultado:', error);
     res.status(500).json({ error: 'Error al procesar el resultado', details: error.message });
   }
+  */
+  // --- Fin lógica de apuestas comentada ---
+
+  // Respuesta simple para debug
+  console.log(`Resultado recibido correctamente para debug. Ganador: player ${winnerPlayer}`);
+
+  res.json({
+    status: 'ok',
+    message: `Resultado recibido para debug, ganador: player ${winnerPlayer}`,
+    winnerPlayer
+  });
 };
 
 module.exports = { raceResult, procesarResultadoSimple };

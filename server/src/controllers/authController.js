@@ -55,10 +55,34 @@ exports.register = async (req, res) => {
 
     const { username, email, password, fechaNacimiento } = req.body;
 
-    // 2. Verificar si el usuario ya existe
+    // 1. Validar campos obligatorios
+    if (!username || !email || !password || !fechaNacimiento) {
+      return res.status(400).json({ msg: 'Faltan campos obligatorios.' });
+    }
+
+    // 2. Validar mayoría de edad
+    const birthDate = new Date(fechaNacimiento);
+    const today = new Date();
+    const age = today.getFullYear() - birthDate.getFullYear() - (today < new Date(today.getFullYear(), birthDate.getMonth(), birthDate.getDate()) ? 1 : 0);
+    if (age < 18) {
+      return res.status(400).json({ msg: 'Debes tener al menos 18 años para registrarte.' });
+    }
+
+    // 3. Validar formato de email
+    const emailRegex = /^[^@\s]+@[^@\s]+\.[^@\s]+$/;
+    if (!emailRegex.test(email)) {
+      return res.status(400).json({ msg: 'Por favor, introduce un correo válido.' });
+    }
+
+    // 4. Validar si el email ya existe
     let user = await User.findOne({ where: { email } });
     if (user) {
-      return res.status(400).json({ msg: 'El usuario ya existe' });
+      return res.status(400).json({ msg: 'El correo ya está registrado.' });
+    }
+
+    // 5. Validar seguridad de la contraseña
+    if (password.length < 8) {
+      return res.status(400).json({ msg: 'La contraseña debe tener al menos 8 caracteres.' });
     }
 
     // 3. Crear wallet de Solana

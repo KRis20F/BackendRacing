@@ -267,9 +267,25 @@ const getUserCars = async (req, res) => {
   }
 };
 
+// Obtener conteo de autos por categoría
+const getCategoryCounts = async (req, res) => {
+  try {
+    const [counts] = await sequelize.query(`
+      SELECT LOWER(category) as category, COUNT(*) as count
+      FROM "Cars"
+      GROUP BY category
+    `);
+    res.json(counts);
+  } catch (error) {
+    console.error('Error en getCategoryCounts:', error);
+    res.status(500).json({ error: 'Error al obtener el conteo por categoría', details: error.message });
+  }
+};
+
 module.exports = {
   getAllCars,
   getCarsByCategory,
   getCarById,
-  getUserCars
+  getUserCars,
+  getCategoryCounts
 }; 

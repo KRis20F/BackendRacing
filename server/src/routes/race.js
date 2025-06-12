@@ -115,7 +115,7 @@ router.post('/bet/create', auth, createBet);
  *       500:
  *         description: Server error
  */
-router.post('/race/result', auth, raceResult);
+router.post('/result', auth, raceResult);
 
 /**
  * @swagger
@@ -162,8 +162,8 @@ router.post('/race/result', auth, raceResult);
  *       500:
  *         description: Server error
  */
-router.post('/race/result-simple', auth, procesarResultadoSimple);
+router.post('/result-simple', auth, procesarResultadoSimple);
 
-router.post('/matchmaking/join', auth, joinMatchmaking);
+// router.post('/matchmaking/join', auth, joinMatchmaking);
 
 module.exports = router;
